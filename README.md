@@ -128,8 +128,6 @@ For active development, use local build:
   - Enable/disable categories
   - 80 tools limit configuration
 
-See **[docs/README.md](docs/README.md)** for navigation guide.
-
 ---
 
 ## 🎯 Features Overview
