@@ -1,0 +1,22 @@
+{
+  "tools": {
+    "core": true,
+    "ai": true,
+    "testing": true,
+    "assertions": true,
+    "visual_testing": true,
+    "accessibility": true,
+    "bug_reports": true,
+    "test_recording": true,
+    "batch_operations": true,
+    "loading_detection": true,
+    "clipboard": true,
+    "device_conditions": true,
+    "video_recording": false,
+    "performance_monitoring": false,
+    "network_monitoring": false,
+    "flakiness_detection": false,
+    "test_data_generation": false
+  }
+}
+
