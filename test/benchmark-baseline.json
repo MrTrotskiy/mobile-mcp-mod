@@ -1,0 +1,42 @@
+{
+  "getScreenSize (first call)": {
+    "avgTime": 160.33333333333334,
+    "maxTime": 165
+  },
+  "getScreenSize (cached)": {
+    "avgTime": 0,
+    "maxTime": 0
+  },
+  "getElementsOnScreen (first call)": {
+    "avgTime": 2491.6666666666665,
+    "maxTime": 2510
+  },
+  "getElementsOnScreen (cached)": {
+    "avgTime": 498.4,
+    "maxTime": 2492
+  },
+  "tap (coordinate)": {
+    "avgTime": 161.6,
+    "maxTime": 178
+  },
+  "swipe (full screen)": {
+    "avgTime": 1165.3333333333333,
+    "maxTime": 1175
+  },
+  "sendKeys (text input)": {
+    "avgTime": 211.6,
+    "maxTime": 337
+  },
+  "getScreenshot": {
+    "avgTime": 581.6666666666666,
+    "maxTime": 595
+  },
+  "pressButton (BACK)": {
+    "avgTime": 160.6,
+    "maxTime": 177
+  },
+  "getOrientation": {
+    "avgTime": 153.8,
+    "maxTime": 162
+  }
+}

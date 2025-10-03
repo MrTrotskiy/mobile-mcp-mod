@@ -1,0 +1,53 @@
+---
+description: "Mobile MCP - Cursor Integration (Week 1: Logs & Context)"
+alwaysApply: true
+---
+
+# Mobile MCP - Cursor Integration Project
+
+## Context
+TypeScript mobile automation library (iOS/Android). Test device: Android 843b3cd3.
+
+**Goal**: Make mobile app testing through MCP as convenient as Playwright in Cursor.
+
+## Current Phase: Week 1 - Logs & Context
+**Plan**: See `docs/INTERACTION_IMPROVEMENTS.md` for full 5-week roadmap.
+
+### This Week (High Priority):
+- **Day 1-2**: Application Logs - add `mobile_get_app_logs` tool
+- **Day 3-4**: System Logs & Crashes - add crash detection
+- **Day 5**: MCP Resources - add test context as Resources
+
+**Key Files to Create**:
+- `src/log-reader.ts` - log reading implementation
+- `src/test-context.ts` - test context tracking
+- Update `src/server.ts` - add new MCP tools & resources
+
+## Workflow (Always Follow)
+1. **Implement** → Read files, make minimal changes, add comments
+2. **Build** → `npm run build && npm run fixlint`
+3. **Test** → Test with real device when connected
+4. **Verify** → No errors, backward compatible
+5. **Commit** → `git commit -m "feat: [name] - [benefit]"`
+
+## Critical Rules
+- ✅ Test after every change
+- ✅ Build + fixlint before testing
+- ✅ One step at a time
+- ✅ Keep backward compatibility
+- ✅ Comment WHY, not just WHAT
+
+## Code Standards
+Clean, simple code. Small files (<200 lines). Clear names. Lots of comments.
+
+## Success Criteria
+- ✅ Build successfully  
+- ✅ Not break existing functionality  
+- ✅ Backward compatible  
+- ✅ Clear commit message
+
+## Troubleshooting
+**Build fails:** Check syntax, imports, type errors  
+**Test fails:** Revert changes, check device connection  
+**Device not connected:** Wait until Android 843b3cd3 is available
+

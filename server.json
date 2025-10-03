@@ -1,0 +1,26 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-07-09/server.schema.json",
+  "name": "io.github.mobilepixel/mobilepixel",
+  "description": "MobilePixel - Pixel-perfect mobile automation with 89+ AI-powered tools for iOS & Android testing",
+  "status": "active",
+  "repository": {
+    "url": "https://github.com/MrTrotskiy/mobilepixel",
+    "source": "github"
+  },
+  "version": "1.0.0",
+  "packages": [
+    {
+      "registry_type": "npm",
+      "registry_base_url": "https://registry.npmjs.org",
+      "identifier": "@mobilepixel/mcp",
+      "version": "1.0.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "environment_variables": [
+        {
+        }
+      ]
+    }
+  ]
+}

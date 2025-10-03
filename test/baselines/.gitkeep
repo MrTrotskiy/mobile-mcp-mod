@@ -1,0 +1,6 @@
+# Baseline Screenshots Directory
+
+This directory stores reference screenshots for visual regression testing.
+
+Baseline images are saved here by the `mobile_save_baseline` MCP tool.
+

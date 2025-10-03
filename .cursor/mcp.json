@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "mobilepixel": {
+      "command": "node",
+      "args": ["lib/index.js"],
+      "cwd": "${workspaceFolder}",
+      "env": {
+        "MCP_DEBUG": "true",
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}
+

@@ -1,0 +1,10 @@
+**/.DS_Store
+node_modules
+lib
+.nyc_output
+other
+test/annotated-screenshots
+test/recordings
+test/baselines-test
+test/bug-reports
+
