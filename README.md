@@ -11,7 +11,7 @@
 </h1>
 
 <h3 align="center">
-  <strong>Pixel-perfect mobile automation with 89+ AI-powered tools</strong>
+  <strong>Pixel-perfect mobile automation with 94+ AI-powered tools</strong>
 </h3>
 
 <p align="center">
@@ -21,8 +21,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-1.0.0-blue?style=for-the-badge" alt="Version" />
-  <img src="https://img.shields.io/badge/Tools-89+-green?style=for-the-badge" alt="Tools" />
+  <img src="https://img.shields.io/badge/Version-1.1.0-blue?style=for-the-badge" alt="Version" />
+  <img src="https://img.shields.io/badge/Tools-94+-green?style=for-the-badge" alt="Tools" />
   <img src="https://img.shields.io/badge/License-Apache%202.0-orange?style=for-the-badge" alt="License" />
 </p>
 
@@ -32,18 +32,26 @@
 
 **MobilePixel** is like **Playwright for mobile apps** - a powerful MCP server that enables AI agents and LLMs to interact with native iOS and Android applications through an intuitive, platform-agnostic interface.
 
-With **89+ tools** spanning 7 major categories, MobilePixel provides everything you need for comprehensive mobile testing, from basic interactions to advanced features like visual regression, accessibility testing, and CI/CD integration.
+With **94+ tools** spanning multiple categories, MobilePixel provides everything you need for comprehensive mobile testing, from basic interactions to advanced features like OCR, visual regression, accessibility testing, and CI/CD integration.
 
 ### ✨ Key Highlights
 
-- 🎯 **89+ MCP Tools** - Complete testing toolkit
+- 🎯 **94+ MCP Tools** - Complete testing toolkit
 - 🤖 **AI-Powered** - Natural language element finding
+- 🔍 **OCR Integration** - Find text that accessibility API misses (⚡ 3x faster)
+- 📦 **Batch Operations** - Execute multiple actions atomically
+- ⏳ **Smart Waiting** - Auto-detect loading states
 - 📱 **Cross-Platform** - iOS & Android support
-- 🔍 **Visual Testing** - Pixel-perfect screenshot comparison
+- 🎨 **Visual Testing** - Pixel-perfect screenshot comparison
 - ♿ **Accessibility** - WCAG 2.1 compliance checking
-- 📊 **Analytics** - Performance monitoring & flaky test detection
-- 🎨 **Visual Feedback** - Touch indicators for demos
 - 🔧 **CI/CD Ready** - JUnit XML, JSON, TAP export
+
+### 🆕 What's New in v1.1.0
+
+- **OCR Text Recognition** - Fast mode (500ms), Worker Pool (7.5x faster parallel)
+- **Batch Operations** - Atomic multi-action execution with rollback
+- **Loading Detection** - Smart waiting for screen stability
+- **Performance** - 3-7x faster image processing with caching
 
 ---
 
@@ -102,108 +110,64 @@ For active development, use local build:
 
 ---
 
-## 🎯 Features by Category
+## 📚 Documentation
 
-### 📱 Week 1: Logs & Context (7 tools)
-Track everything happening in your app:
-- Application logs reading
-- Crash detection & reporting
-- System error tracking
-- Test execution history
-- Test context management
+**For AI Agents** - Compact, no-nonsense guides:
 
-### 🌐 Week 2: Network & AI (12 tools)
-Monitor and analyze network activity:
-- HTTP/HTTPS request interception
-- HAR export for analysis
-- Network request filtering
-- **AI Element Finder** - Find elements by natural language description
-- Smart element detection
+- **[AI_BEST_PRACTICES.md](docs/AI_BEST_PRACTICES.md)** - How to use MCP correctly (146 lines)
+  - Main rule: Use Accessibility API, not visual coordinates
+  - 4-step workflow, 7 examples, debugging tips
+  
+- **[SETUP.md](docs/SETUP.md)** - Build, configure, troubleshoot
+  - Local development setup
+  - Configure in any project
+  - Device setup (Android/iOS)
+  
+- **[TOOLS.md](docs/TOOLS.md)** - Complete 94+ tools reference
+  - All tools by category
+  - Enable/disable categories
+  - 80 tools limit configuration
 
-### 🧪 Week 3: Smart Testing (8 tools)
-Build intelligent tests:
-- Assertion framework (expectElementVisible, expectText, etc.)
-- Test recorder - Record user actions
-- Code generator - Auto-generate test code
-- Test replay capabilities
+See **[docs/README.md](docs/README.md)** for navigation guide.
 
-### 🎨 Week 4-5: Visual & Performance (22 tools)
+---
 
-**Visual Regression Testing**
-- Save/compare baseline screenshots
-- Pixel-perfect diff detection
-- Visual change reporting
+## 🎯 Features Overview
 
-**Video Recording**
-- Record test execution
-- Start/stop/cancel recording
-- MP4 export
+### Core Tools (20)
+Device management, screen interactions, element finding, screenshots, logs
 
-**Performance Monitoring**
-- CPU, Memory, FPS tracking
-- Performance metrics collection
-- Resource usage analysis
+### AI & OCR (7)
+Natural language element finding, OCR text recognition (⚡ 3x faster)
 
-**Device Control**
-- Clipboard operations (get/set/clear)
-- Battery simulation
-- Network conditions (WiFi, mobile data, airplane mode)
-- GPS location mocking
+### Smart Testing (14)
+Assertions, test recording, code generation, batch operations, loading detection
 
-### ♿ Week 6: Accessibility & Documentation (8 tools)
+### Visual Testing (4)
+Baseline screenshots, pixel-perfect comparison, visual regression
 
-**Accessibility Testing**
-- WCAG 2.1 compliance checker
-- Accessibility score (0-100)
-- Find missing labels, small targets, overlaps
-- Actionable recommendations
+### Accessibility (3)
+WCAG 2.1 compliance, accessibility score, issue detection
 
-**Screenshot Annotations**
-- Draw rectangles, circles, text
-- Highlight elements
-- Mark tap points
-- Export annotated screenshots
+### Bug Reports & Annotations (5)
+Auto bug reports, screenshot annotations, element highlighting
 
-**Bug Report Generator**
-- Auto-generate comprehensive bug reports
-- Include screenshots, logs, device info
-- Markdown & JSON export
+### Performance & Network (9)
+CPU/Memory/FPS monitoring, HTTP interception, HAR export
 
-### 🔬 Week 7: Test Intelligence & CI/CD (21 tools)
+### Device Control (8)
+Clipboard, battery simulation, network conditions, GPS mocking
 
-**Flaky Test Detection**
-- Track test execution history
-- Calculate flakiness score (0-100)
-- Identify failure patterns
-- Get fix recommendations
+### Test Intelligence (5)
+Flaky test detection, test data generation, stability analysis
 
-**Test Data Generator**
-- Generate realistic person data
-- Email, phone, address generation
-- Credit cards (test data only)
-- Passwords, dates, lorem ipsum
-- Batch generation (up to 100 items)
-- Multi-locale support (en-US, ru-RU, uk-UA, de-DE, fr-FR)
+### CI/CD Integration (2)
+JUnit XML, JSON, Markdown, TAP, GitHub Actions
 
-**Visual Touch Indicators** 👆
-- Show circles at tap points
-- Pointer trails and coordinates
-- Demo mode for presentations
-- Perfect for debugging AI interactions
+### Visual Feedback (5)
+Touch indicators, demo mode, pointer trails (perfect for AI debugging)
 
-**CI/CD Integration**
-- Export to JUnit XML (Jenkins, GitHub Actions)
-- JSON format for custom dashboards
-- Markdown reports for PR comments
-- TAP (Test Anything Protocol)
-- GitHub Actions summary
-
-### 🎯 Core Features (11 tools)
-- Device management & discovery
-- Screen interactions (tap, swipe, type)
-- Element finding & inspection
-- Screenshot capture
-- App launching & navigation
+**Total: 94+ tools** - See [TOOLS.md](docs/TOOLS.md) for complete list
 
 ---
 
@@ -293,21 +257,21 @@ stop monitoring and export metrics to CI/CD in JSON format
 
 ## 🎨 What Makes MobilePixel Special?
 
-1. **Most Comprehensive** - 89+ tools covering everything from basic interactions to advanced testing
-2. **AI-Native** - Built for LLMs with natural language support
+1. **Most Comprehensive** - 94+ tools covering everything from basic interactions to advanced testing
+2. **AI-Native** - Built for LLMs with natural language support & OCR
 3. **Visual First** - Pixel-perfect testing with visual regression and annotations
-4. **Intelligence Built-in** - Flaky test detection, smart element finding
+4. **Intelligence Built-in** - Flaky test detection, smart element finding, batch operations
 5. **Production Ready** - CI/CD integration, comprehensive reporting
-6. **Real-World Tested** - Tested on actual devices, not just simulators
-7. **Developer Friendly** - Clear tool descriptions, helpful error messages
+6. **Performance Focused** - 3-7x faster with smart caching and worker pools
+7. **Developer Friendly** - Compact documentation, clear examples
 
 ---
 
 ## 📊 Stats
 
-- **89+ MCP Tools**
+- **94+ MCP Tools** (5 new in v1.1.0)
 - **~20,000 Lines of Code**
-- **7 Feature Categories**
+- **11 Tool Categories**
 - **5 Locales Supported**
 - **Android ✅ iOS ✅**
 - **Production Ready ✅**
