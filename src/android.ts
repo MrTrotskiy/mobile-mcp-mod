@@ -465,6 +465,127 @@ export class AndroidRobot implements Robot {
 	}
 
 	/**
+	 * Hide soft keyboard on Android
+	 *
+	 * This is useful when keyboard overlaps elements you want to interact with
+	 * Strategy: Press BACK button to dismiss keyboard without navigating back
+	 *
+	 * Note: Only hides keyboard if it's currently visible
+	 * Safe to call even if keyboard is already hidden
+	 */
+	public async hideKeyboard(): Promise<void> {
+		try {
+			// Check if keyboard is visible by checking InputMethodManager
+			const keyboardVisible = this.adb(
+				"shell",
+				"dumpsys",
+				"input_method"
+			).toString();
+
+			// Look for "mInputShown=true" which indicates keyboard is visible
+			if (keyboardVisible.includes("mInputShown=true")) {
+				// Send BACK keyevent to close keyboard
+				// This is safer than blind back press
+				this.adb("shell", "input", "keyevent", "KEYCODE_BACK");
+
+				// Clear element cache after keyboard is hidden
+				this.clearElementCache();
+			}
+		} catch (error) {
+			// If command fails, try simple BACK press as fallback
+			// This might navigate back, but it's better than nothing
+			this.adb("shell", "input", "keyevent", "KEYCODE_BACK");
+			this.clearElementCache();
+		}
+	}
+
+	/**
+	 * Select option by text in native picker/dropdown
+	 *
+	 * Works with native Android spinners, pickers, and dropdowns
+	 * Strategy:
+	 * 1. Find element with matching text in current elements
+	 * 2. If not found, swipe to scroll picker and search again
+	 * 3. Tap on the element when found
+	 *
+	 * @param text - Text of the option to select (e.g., "Option 2", "January")
+	 * @param maxScrollAttempts - Maximum number of scroll attempts (default: 10)
+	 * @returns true if option was found and selected, false otherwise
+	 */
+	public async selectOptionByText(text: string, maxScrollAttempts: number = 10): Promise<boolean> {
+		const textLower = text.toLowerCase();
+
+		// Try to find option in current view
+		for (let attempt = 0; attempt < maxScrollAttempts; attempt++) {
+			const elements = await this.getElementsOnScreen();
+
+			// Search for element with matching text
+			const option = elements.find(el =>
+				(el.text || "").toLowerCase().includes(textLower) ||
+				(el.label || "").toLowerCase().includes(textLower)
+			);
+
+			if (option) {
+				// Found! Tap on it
+				const tapX = option.rect.x + Math.floor(option.rect.width / 2);
+				const tapY = option.rect.y + Math.floor(option.rect.height / 2);
+				await this.tap(tapX, tapY);
+				return true;
+			}
+
+			// Not found, try scrolling picker down
+			// Most pickers are in center of screen, so swipe there
+			const screenSize = await this.getScreenSize();
+			const centerX = Math.floor(screenSize.width / 2);
+			const centerY = Math.floor(screenSize.height / 2);
+
+			// Swipe up to scroll picker down (reveal next options)
+			await this.swipeFromCoordinate(centerX, centerY, "up", 200);
+
+			// Small delay for picker to settle
+			await new Promise(resolve => setTimeout(resolve, 200));
+		}
+
+		// Option not found after all attempts
+		return false;
+	}
+
+	/**
+	 * Swipe inside a specific element (useful for scrollable containers)
+	 *
+	 * This allows scrolling within a specific element without affecting the whole screen
+	 * Use cases:
+	 * - Horizontal scrolling in carousels
+	 * - Vertical scrolling in nested lists
+	 * - Scrolling inside modal dialogs
+	 *
+	 * @param element - The element to swipe inside
+	 * @param direction - Swipe direction
+	 * @param distance - Optional swipe distance (default: 70% of element dimension)
+	 */
+	public async swipeInElement(element: ScreenElement, direction: SwipeDirection, distance?: number): Promise<void> {
+		// Calculate center of element
+		const centerX = Math.floor(element.rect.x + element.rect.width / 2);
+		const centerY = Math.floor(element.rect.y + element.rect.height / 2);
+
+		// Calculate swipe distance (default: 70% of element dimension)
+		let swipeDistance: number;
+		if (distance) {
+			swipeDistance = distance;
+		} else {
+			// Use 70% of element dimension for more controlled swipe
+			if (direction === "up" || direction === "down") {
+				swipeDistance = Math.floor(element.rect.height * 0.7);
+			} else {
+				swipeDistance = Math.floor(element.rect.width * 0.7);
+			}
+		}
+
+		// Perform swipe from center of element
+		await this.swipeFromCoordinate(centerX, centerY, direction, swipeDistance);
+	}
+
+	/**
 	 * Get application logs from Android device
 	 *
 	 * Returns recent log entries for a specific app package

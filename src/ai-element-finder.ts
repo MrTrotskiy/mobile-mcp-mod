@@ -29,6 +29,12 @@ export class AIElementFinder {
 	/**
 	 * Find element by natural language description
 	 *
+	 * Enhanced with accessibility fallback:
+	 * 1. Try AI-based fuzzy matching (heuristics, position, type)
+	 * 2. If no match or low confidence, try exact text search via accessibility
+	 *
+	 * This fixes issue where obvious elements (like "Signup") weren't found
+	 *
 	 * Examples:
 	 * - "login button"
 	 * - "email input field"
@@ -37,18 +43,18 @@ export class AIElementFinder {
 	 *
 	 * @param elements - List of elements on screen
 	 * @param description - Natural language description
-	 * @param threshold - Minimum confidence score (0-100, default: 35)
+	 * @param threshold - Minimum confidence score (0-100, default: 50, raised from 35)
 	 * @returns Best matching element or null
 	 */
 	static findElementByDescription(
 		elements: ScreenElement[],
 		description: string,
-		threshold: number = 35
+		threshold: number = 50  // Raised from 35 to 50 for better accuracy
 	): ElementMatch | null {
 		// Normalize description
 		const desc = description.toLowerCase().trim();
 
-		// Score all elements
+		// Step 1: Try AI-based fuzzy matching
 		const matches: ElementMatch[] = [];
 
 		for (const element of elements) {
@@ -61,8 +67,74 @@ export class AIElementFinder {
 		// Sort by score (highest first)
 		matches.sort((a, b) => b.score - a.score);
 
-		// Return best match
+		// If we have good match, return it
+		if (matches.length > 0 && matches[0].score >= threshold) {
+			return matches[0];
+		}
+
+		// Step 2: Fallback to exact text search via accessibility API
+		// This catches obvious elements like "Signup", "Login", etc.
+		console.log(`[AI Element Finder] Fuzzy match failed, trying accessibility text search for: "${description}"`);
+
+		const textMatch = this.findByExactText(elements, desc);
+		if (textMatch) {
+			console.log(`[AI Element Finder] ✅ Found via accessibility text search`);
+			return textMatch;
+		}
+
+		// No match found
 		return matches.length > 0 ? matches[0] : null;
+	}
+
+	/**
+	 * Find element by exact text match (accessibility fallback)
+	 *
+	 * This is more reliable than fuzzy matching for simple text elements
+	 * Searches in: text, label, name, value fields
+	 *
+	 * @param elements - List of elements on screen
+	 * @param searchText - Text to search for (case-insensitive)
+	 * @returns Element match or null
+	 */
+	private static findByExactText(elements: ScreenElement[], searchText: string): ElementMatch | null {
+		const textLower = searchText.toLowerCase();
+
+		// Try exact match first
+		for (const element of elements) {
+			const text = (element.text || "").toLowerCase();
+			const label = (element.label || "").toLowerCase();
+			const name = (element.name || "").toLowerCase();
+			const value = (element.value || "").toLowerCase();
+
+			// Exact match (high confidence)
+			if (text === textLower || label === textLower || name === textLower || value === textLower) {
+				return {
+					element,
+					score: 95,
+					reason: "Exact text match via accessibility"
+				};
+			}
+		}
+
+		// Try partial match (contains)
+		for (const element of elements) {
+			const text = (element.text || "").toLowerCase();
+			const label = (element.label || "").toLowerCase();
+			const name = (element.name || "").toLowerCase();
+			const value = (element.value || "").toLowerCase();
+
+			if (text.includes(textLower) || label.includes(textLower) ||
+				name.includes(textLower) || value.includes(textLower)) {
+				return {
+					element,
+					score: 80,
+					reason: "Partial text match via accessibility"
+				};
+			}
+		}
+
+		// No text match found
+		return null;
 	}
 
 	/**

@@ -156,4 +156,35 @@ export interface Robot {
 	 * Clear clipboard content on device.
 	 */
 	clearClipboard(): Promise<void>;
+
+	/**
+	 * Hide soft keyboard
+	 *
+	 * Useful when keyboard overlaps elements you want to interact with
+	 * Safe to call even if keyboard is not visible
+	 */
+	hideKeyboard(): Promise<void>;
+
+	/**
+	 * Select option by text in native picker/dropdown
+	 *
+	 * Works with native Android spinners and iOS UIPickerView
+	 * Automatically scrolls through options to find matching text
+	 *
+	 * @param text - Text of the option to select
+	 * @param maxScrollAttempts - Maximum number of scroll attempts (default: 10)
+	 * @returns true if option was found and selected, false otherwise
+	 */
+	selectOptionByText(text: string, maxScrollAttempts?: number): Promise<boolean>;
+
+	/**
+	 * Swipe inside a specific element (useful for scrollable containers)
+	 *
+	 * This allows scrolling within a specific element without affecting the whole screen
+	 *
+	 * @param element - The element to swipe inside
+	 * @param direction - Swipe direction
+	 * @param distance - Optional swipe distance (default: 70% of element dimension)
+	 */
+	swipeInElement(element: ScreenElement, direction: SwipeDirection, distance?: number): Promise<void>;
 }

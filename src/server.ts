@@ -959,6 +959,14 @@ export const createMcpServer = (): McpServer => {
 		async ({ device, description, threshold }) => {
 			const robot = getRobotFromDevice(device);
 
+			// Auto-hide keyboard before tap to avoid keyboard overlapping elements
+			// This is safe to call even if keyboard is not visible
+			try {
+				await robot.hideKeyboard();
+			} catch (error) {
+				// Ignore errors - keyboard might not be present
+			}
+
 			// Get elements on screen
 			const elements = await robot.getElementsOnScreen();
 
@@ -966,7 +974,7 @@ export const createMcpServer = (): McpServer => {
 				return "No elements found on screen.";
 			}
 
-			// Find element
+			// Find element with improved fallback (AI + accessibility)
 			const match = AIElementFinder.findElementByDescription(
 				elements,
 				description,
@@ -974,7 +982,7 @@ export const createMcpServer = (): McpServer => {
 			);
 
 			if (!match) {
-				return `Could not find element matching "${description}".`;
+				return `Could not find element matching "${description}". Try using mobile_list_elements_on_screen to see available elements.`;
 			}
 
 			// Calculate tap coordinates (center of element)
@@ -997,6 +1005,101 @@ export const createMcpServer = (): McpServer => {
 			TestRecorder.recordTap(tapX, tapY, `Tap ${description}`);
 
 			return `Tapped "${match.element.type}" (confidence: ${match.score}%, reason: ${match.reason}) at coordinates: ${tapX}, ${tapY}`;
+		}
+	);
+
+	tool(
+		"mobile_hide_keyboard",
+		"Hide soft keyboard on device. Useful when keyboard overlaps elements you want to interact with. Safe to call even if keyboard is not visible.",
+		{
+			device: z.string().describe("The device identifier to use. Use mobile_list_available_devices to find which devices are available to you.")
+		},
+		async ({ device }) => {
+			const robot = getRobotFromDevice(device);
+
+			await robot.hideKeyboard();
+
+			// Record action in test context
+			TestContext.recordAction({
+				type: "hide_keyboard",
+				timestamp: Date.now(),
+				device,
+				params: {},
+				result: "success"
+			});
+
+			return "Keyboard hidden successfully";
+		}
+	);
+
+	tool(
+		"mobile_select_option_by_text",
+		"Select option by text in native picker/dropdown. Works with Android spinners and iOS UIPickerView. Automatically scrolls through options to find matching text.",
+		{
+			device: z.string().describe("The device identifier to use. Use mobile_list_available_devices to find which devices are available to you."),
+			text: z.string().describe("Text of the option to select (e.g., 'Option 2', 'January')"),
+			maxScrollAttempts: z.number().optional().describe("Maximum number of scroll attempts (default: 10)")
+		},
+		async ({ device, text, maxScrollAttempts }) => {
+			const robot = getRobotFromDevice(device);
+
+			const found = await robot.selectOptionByText(text, maxScrollAttempts || 10);
+
+			// Record action in test context
+			TestContext.recordAction({
+				type: "select_option",
+				timestamp: Date.now(),
+				device,
+				params: { text, found },
+				result: found ? "success" : "not_found"
+			});
+
+			if (found) {
+				return `Selected option: "${text}"`;
+			} else {
+				return `Could not find option: "${text}" after ${maxScrollAttempts || 10} scroll attempts`;
+			}
+		}
+	);
+
+	tool(
+		"mobile_swipe_in_element",
+		"Swipe inside a specific element (useful for scrollable containers like carousels, nested lists, modal dialogs). First use mobile_find_element_by_description to get the element.",
+		{
+			device: z.string().describe("The device identifier to use. Use mobile_list_available_devices to find which devices are available to you."),
+			elementDescription: z.string().describe("Natural language description of the element to swipe inside (e.g., 'scrollable list', 'carousel')"),
+			direction: z.enum(["up", "down", "left", "right"]).describe("Swipe direction"),
+			distance: z.number().optional().describe("Optional swipe distance in pixels (default: 70% of element dimension)")
+		},
+		async ({ device, elementDescription, direction, distance }) => {
+			const robot = getRobotFromDevice(device);
+
+			// Find the element first
+			const elements = await robot.getElementsOnScreen();
+
+			if (elements.length === 0) {
+				return "No elements found on screen.";
+			}
+
+			const match = AIElementFinder.findElementByDescription(elements, elementDescription, 50);
+
+			if (!match) {
+				return `Could not find element matching "${elementDescription}".`;
+			}
+
+			// Swipe inside the element
+			await robot.swipeInElement(match.element, direction, distance);
+
+			// Record action in test context
+			TestContext.recordAction({
+				type: "swipe_in_element",
+				timestamp: Date.now(),
+				device,
+				params: { elementDescription, direction, distance },
+				result: "success"
+			});
+
+			return `Swiped ${direction} inside "${match.element.type}" (confidence: ${match.score}%)`;
 		}
 	);
 

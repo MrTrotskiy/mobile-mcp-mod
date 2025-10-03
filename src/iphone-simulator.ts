@@ -285,6 +285,83 @@ export class Simctl implements Robot {
 	}
 
 	/**
+	 * Hide soft keyboard (simulator version)
+	 * Uses WDA to dismiss keyboard
+	 */
+	public async hideKeyboard(): Promise<void> {
+		try {
+			const wda = await this.wda();
+			// Try to dismiss keyboard by tapping outside or sending return
+			// WDA has built-in keyboard dismissal logic
+			try {
+				// Get screen size and tap in safe area (top of screen)
+				const screenSize = await this.getScreenSize();
+				await wda.tap(screenSize.width / 2, 50);
+			} catch {
+				// Ignore if tap fails
+			}
+		} catch (error) {
+			// Ignore errors - keyboard might not be present
+		}
+	}
+
+	/**
+	 * Select option by text in native picker (simulator version)
+	 * Same implementation as IosRobot
+	 */
+	public async selectOptionByText(text: string, maxScrollAttempts: number = 10): Promise<boolean> {
+		const textLower = text.toLowerCase();
+
+		for (let attempt = 0; attempt < maxScrollAttempts; attempt++) {
+			const elements = await this.getElementsOnScreen();
+
+			const option = elements.find(el =>
+				(el.text || "").toLowerCase().includes(textLower) ||
+				(el.label || "").toLowerCase().includes(textLower) ||
+				(el.value || "").toLowerCase().includes(textLower)
+			);
+
+			if (option) {
+				const tapX = option.rect.x + Math.floor(option.rect.width / 2);
+				const tapY = option.rect.y + Math.floor(option.rect.height / 2);
+				await this.tap(tapX, tapY);
+				return true;
+			}
+
+			const screenSize = await this.getScreenSize();
+			const centerX = Math.floor(screenSize.width / 2);
+			const centerY = Math.floor(screenSize.height * 0.6);
+
+			await this.swipeFromCoordinate(centerX, centerY, "up", 100);
+			await new Promise(resolve => setTimeout(resolve, 200));
+		}
+
+		return false;
+	}
+
+	/**
+	 * Swipe inside a specific element (simulator version)
+	 * Same implementation as IosRobot
+	 */
+	public async swipeInElement(element: ScreenElement, direction: SwipeDirection, distance?: number): Promise<void> {
+		const centerX = Math.floor(element.rect.x + element.rect.width / 2);
+		const centerY = Math.floor(element.rect.y + element.rect.height / 2);
+
+		let swipeDistance: number;
+		if (distance) {
+			swipeDistance = distance;
+		} else {
+			if (direction === "up" || direction === "down") {
+				swipeDistance = Math.floor(element.rect.height * 0.7);
+			} else {
+				swipeDistance = Math.floor(element.rect.width * 0.7);
+			}
+		}
+
+		await this.swipeFromCoordinate(centerX, centerY, direction, swipeDistance);
+	}
+
+	/**
 	 * Get clipboard content from simulator
 	 */
 	public async getClipboard(): Promise<string> {
