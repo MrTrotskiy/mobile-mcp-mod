@@ -215,6 +215,200 @@ All optimizations work automatically:
 
 ---
 
+## 🤖 BEST PRACTICES FOR AI AGENTS
+
+### ⚠️ CRITICAL: Never Use Visual Coordinates!
+
+**The #1 mistake AI agents make**: Using coordinates from screenshots.
+
+```javascript
+// ❌ WRONG - Guessing coordinates from screenshot
+await mobile_click_on_screen_at_coordinates(843b3cd3, 100, 1400)
+
+// ✅ CORRECT - Using Accessibility API
+const elements = await mobile_list_elements_on_screen(843b3cd3)
+const homeButton = elements.find(el => el.label === "Home")
+const centerX = homeButton.rect.x + homeButton.rect.width / 2
+const centerY = homeButton.rect.y + homeButton.rect.height / 2
+await mobile_click_on_screen_at_coordinates(843b3cd3, centerX, centerY)
+```
+
+**Why?** 
+- Screenshots may be scaled
+- Visual coordinates ≠ Accessibility coordinates
+- Bottom navigation bars have y-coordinates > 2000 (not 1400!)
+- Dialogs appear at different positions than visible
+
+### 📋 Step-by-Step Workflow
+
+**Every time you want to click something:**
+
+1. **Get accessibility tree** (ALWAYS first step!)
+   ```
+   mobile_list_elements_on_screen(deviceId)
+   ```
+
+2. **Find your element** in the results
+   ```json
+   {
+     "type": "android.view.View",
+     "label": "Home",
+     "rect": { "x": 0, "y": 2076, "width": 216, "height": 90 }
+   }
+   ```
+
+3. **Calculate CENTER coordinates**
+   ```
+   centerX = rect.x + rect.width / 2   // 0 + 216/2 = 108
+   centerY = rect.y + rect.height / 2  // 2076 + 90/2 = 2121
+   ```
+
+4. **Click at center**
+   ```
+   mobile_click_on_screen_at_coordinates(deviceId, 108, 2121)
+   ```
+
+### ✅ Golden Rules
+
+**ALWAYS:**
+- ✅ Call `mobile_list_elements_on_screen()` first
+- ✅ Use element coordinates from accessibility tree
+- ✅ Calculate center: `x + width/2`, `y + height/2`
+- ✅ Wait for dialogs to appear in accessibility tree
+- ✅ Use `mobile_find_element_by_description()` for visual elements
+
+**NEVER:**
+- ❌ Guess coordinates from screenshots
+- ❌ Use coordinates you see visually
+- ❌ Click on element edges (always center!)
+- ❌ Assume bottom nav is at y=1400 (it's usually y=2100+)
+- ❌ Skip accessibility tree check
+
+### 🎯 Common Patterns
+
+#### Pattern 1: Click Navigation Button
+```javascript
+// 1. Get elements
+const elements = await mobile_list_elements_on_screen(deviceId)
+
+// 2. Find button by label
+const homeBtn = elements.find(el => el.label === "Home")
+
+// 3. Calculate center
+const x = homeBtn.rect.x + homeBtn.rect.width / 2
+const y = homeBtn.rect.y + homeBtn.rect.height / 2
+
+// 4. Click
+await mobile_click_on_screen_at_coordinates(deviceId, x, y)
+```
+
+#### Pattern 2: Click Dialog Button
+```javascript
+// 1. Wait a moment for dialog to render
+await new Promise(resolve => setTimeout(resolve, 500))
+
+// 2. Get elements (dialog should now be in tree)
+const elements = await mobile_list_elements_on_screen(deviceId)
+
+// 3. Find OK button
+const okBtn = elements.find(el => el.text === "OK")
+
+// 4. Click at center
+const x = okBtn.rect.x + okBtn.rect.width / 2
+const y = okBtn.rect.y + okBtn.rect.height / 2
+await mobile_click_on_screen_at_coordinates(deviceId, x, y)
+```
+
+#### Pattern 3: Smart Click (with fallbacks)
+```javascript
+// Use AI element finder when accessibility fails
+try {
+  // Try 1: Accessibility tree
+  const elements = await mobile_list_elements_on_screen(deviceId)
+  const element = elements.find(el => 
+    el.label?.includes("Login") || 
+    el.text?.includes("Login")
+  )
+  
+  if (element) {
+    const x = element.rect.x + element.rect.width / 2
+    const y = element.rect.y + element.rect.height / 2
+    await mobile_click_on_screen_at_coordinates(deviceId, x, y)
+  }
+} catch {
+  // Try 2: AI vision-based finder
+  await mobile_tap_element_by_description(deviceId, "login button")
+}
+```
+
+### 🐛 Debugging Tips
+
+**Element not found?**
+1. Check if element has `label` or `text` property
+2. Look at `identifier` field
+3. Try partial matching: `el.label?.includes("Home")`
+4. Use OCR if text not in accessibility tree: `mobile_find_text_by_ocr()`
+
+**Click not working?**
+1. Verify you're clicking CENTER, not edges
+2. Check if element is actually tappable (not disabled)
+3. Wait for animations: `mobile_wait_for_loading()`
+4. Enable touch indicators to see where you're clicking: `mobile_enable_touch_indicators()`
+
+**Dialog not responding?**
+1. Wait 500ms for dialog to appear in accessibility tree
+2. Re-run `mobile_list_elements_on_screen()` after dialog opens
+3. Dialog buttons usually at bottom of tree with `android.widget.Button` type
+
+### 📚 Real-World Example
+
+**Scenario**: Test login flow in React Native app
+
+```javascript
+// ❌ BAD APPROACH
+await mobile_click_on_screen_at_coordinates(deviceId, 540, 1200) // Where's this?
+await mobile_type_keys(deviceId, "test@example.com", false)
+await mobile_click_on_screen_at_coordinates(deviceId, 540, 1500) // Random guess
+
+// ✅ GOOD APPROACH
+// 1. Get all elements
+const elements = await mobile_list_elements_on_screen(deviceId)
+
+// 2. Find email field
+const emailField = elements.find(el => 
+  el.identifier?.includes("email") || 
+  el.label?.toLowerCase().includes("email")
+)
+const emailX = emailField.rect.x + emailField.rect.width / 2
+const emailY = emailField.rect.y + emailField.rect.height / 2
+
+// 3. Click email field
+await mobile_click_on_screen_at_coordinates(deviceId, emailX, emailY)
+
+// 4. Type email
+await mobile_type_keys(deviceId, "test@example.com", false)
+
+// 5. Find and click login button
+const loginBtn = elements.find(el => 
+  el.text?.toLowerCase().includes("login") ||
+  el.label?.toLowerCase().includes("login")
+)
+const loginX = loginBtn.rect.x + loginBtn.rect.width / 2
+const loginY = loginBtn.rect.y + loginBtn.rect.height / 2
+await mobile_click_on_screen_at_coordinates(deviceId, loginX, loginY)
+```
+
+### 🎓 Key Takeaway
+
+> **Visual coordinates from screenshots are NEVER reliable.**  
+> **ALWAYS use Accessibility API coordinates from `mobile_list_elements_on_screen()`.**
+
+This is the difference between:
+- ❌ Tests that break randomly
+- ✅ Tests that work reliably
+
+---
+
 ## ❗ Troubleshooting
 
 ### NPM Package Error
@@ -360,6 +554,7 @@ npm run fixlint
 
 ## 📖 More Info
 
+- **🤖 AI Best Practices**: `docs/AI_BEST_PRACTICES.md` - **Обязательно к прочтению!**
 - **Full Setup Guide**: `docs/MCP_SERVER_SETUP.md`
 - **Development Guide**: `docs/AI_AGENT_INSTRUCTIONS.md`
 - **Documentation**: `docs/` folder
