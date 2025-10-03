@@ -63,7 +63,7 @@ export class OCREngine {
 			return; // Already initialized
 		}
 
-		console.log("[OCR] Initializing Tesseract worker (FAST mode)...");
+		console.error("[OCR] Initializing Tesseract worker (FAST mode)...");
 
 		// Create worker with English language
 		// Using FAST mode: 2-3x faster, ~2MB instead of ~50MB download
@@ -74,12 +74,12 @@ export class OCREngine {
 				// Log progress for long operations
 				if (m.status === "recognizing text") {
 					const progress = Math.round((m.progress || 0) * 100);
-					console.log(`[OCR] Progress: ${progress}%`);
+					console.error(`[OCR] Progress: ${progress}%`);
 				}
 			},
 		});
 
-		console.log("[OCR] Tesseract worker initialized successfully (FAST mode)");
+		console.error("[OCR] Tesseract worker initialized successfully (FAST mode)");
 	}
 
 	/**
@@ -93,7 +93,7 @@ export class OCREngine {
    * This improves OCR accuracy by 20-30% for most screenshots
    */
 	private async preprocessImage(imageBuffer: Buffer): Promise<Buffer> {
-		console.log("[OCR] Preprocessing image...");
+		console.error("[OCR] Preprocessing image...");
 
 		return await sharp(imageBuffer)
 			.grayscale()        // Convert to grayscale (removes color)
@@ -125,7 +125,7 @@ export class OCREngine {
 		const startTime = Date.now();
 		const { preprocess = true, minConfidence = 60 } = options || {};
 
-		console.log(`[OCR] Starting text recognition (preprocess: ${preprocess}, minConfidence: ${minConfidence})`);
+		console.error(`[OCR] Starting text recognition (preprocess: ${preprocess}, minConfidence: ${minConfidence})`);
 
 		// Preprocess image if enabled (recommended for better accuracy)
 		const processedImage = preprocess
@@ -151,7 +151,7 @@ export class OCREngine {
 			}));
 
 		const processTime = Date.now() - startTime;
-		console.log(`[OCR] Recognized ${words.length} words in ${processTime}ms`);
+		console.error(`[OCR] Recognized ${words.length} words in ${processTime}ms`);
 
 		return {
 			words,
@@ -177,7 +177,7 @@ export class OCREngine {
 		const keywords = description.toLowerCase().split(" ");
 		const matches: { text: string; x: number; y: number; confidence: number }[] = [];
 
-		console.log(`[OCR] Searching for keywords: ${keywords.join(", ")}`);
+		console.error(`[OCR] Searching for keywords: ${keywords.join(", ")}`);
 
 		// Check each recognized word against keywords
 		for (const word of ocrResult.words) {
@@ -197,7 +197,7 @@ export class OCREngine {
 			}
 		}
 
-		console.log(`[OCR] Found ${matches.length} matches`);
+		console.error(`[OCR] Found ${matches.length} matches`);
 
 		// Sort by confidence (highest first)
 		return matches.sort((a, b) => b.confidence - a.confidence);
@@ -225,7 +225,7 @@ export class OCREngine {
 			return; // Already initialized
 		}
 
-		console.log(`[OCR] Initializing worker pool with ${workerCount} workers (FAST mode)...`);
+		console.error(`[OCR] Initializing worker pool with ${workerCount} workers (FAST mode)...`);
 		this.scheduler = createScheduler();
 
 		// Create multiple workers in parallel for faster initialization
@@ -237,13 +237,13 @@ export class OCREngine {
 					logger: (m: any) => {
 						if (m.status === "recognizing text") {
 							const progress = Math.round((m.progress || 0) * 100);
-							console.log(`[OCR Worker ${i}] Progress: ${progress}%`);
+							console.error(`[OCR Worker ${i}] Progress: ${progress}%`);
 						}
 					},
 				});
 				this.workers.push(worker);
 				this.scheduler!.addWorker(worker);
-				console.log(`[OCR] Worker ${i + 1}/${workerCount} ready`);
+				console.error(`[OCR] Worker ${i + 1}/${workerCount} ready`);
 			})();
 			workerPromises.push(workerPromise);
 		}
@@ -252,7 +252,7 @@ export class OCREngine {
 		await Promise.all(workerPromises);
 		this.isPoolMode = true;
 
-		console.log(`[OCR] Worker pool initialized with ${workerCount} workers (ready for parallel processing)`);
+		console.error(`[OCR] Worker pool initialized with ${workerCount} workers (ready for parallel processing)`);
 	}
 
 	/**
@@ -284,7 +284,7 @@ export class OCREngine {
 		const startTime = Date.now();
 		const { preprocess = true, minConfidence = 60 } = options || {};
 
-		console.log(`[OCR Pool] Starting parallel text recognition (minConfidence: ${minConfidence})`);
+		console.error(`[OCR Pool] Starting parallel text recognition (minConfidence: ${minConfidence})`);
 
 		// Preprocess image if enabled
 		const processedImage = preprocess
@@ -308,7 +308,7 @@ export class OCREngine {
 			}));
 
 		const processTime = Date.now() - startTime;
-		console.log(`[OCR Pool] Recognized ${words.length} words in ${processTime}ms`);
+		console.error(`[OCR Pool] Recognized ${words.length} words in ${processTime}ms`);
 
 		return {
 			words,
@@ -338,18 +338,18 @@ export class OCREngine {
 	async terminate(): Promise<void> {
 		if (this.isPoolMode && this.scheduler) {
 			// Terminate all workers in pool
-			console.log(`[OCR] Terminating worker pool (${this.workers.length} workers)...`);
+			console.error(`[OCR] Terminating worker pool (${this.workers.length} workers)...`);
 			await this.scheduler.terminate(); // Terminates all workers
 			this.scheduler = null;
 			this.workers = [];
 			this.isPoolMode = false;
-			console.log("[OCR] Worker pool terminated");
+			console.error("[OCR] Worker pool terminated");
 		} else if (this.worker) {
 			// Terminate single worker
-			console.log("[OCR] Terminating Tesseract worker...");
+			console.error("[OCR] Terminating Tesseract worker...");
 			await this.worker.terminate();
 			this.worker = null;
-			console.log("[OCR] Tesseract worker terminated");
+			console.error("[OCR] Tesseract worker terminated");
 		}
 	}
 }

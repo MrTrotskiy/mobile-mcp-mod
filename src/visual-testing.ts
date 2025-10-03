@@ -71,9 +71,9 @@ export class VisualTester {
 
 			// Check if dimensions match
 			if (actualPng.width !== expectedPng.width || actualPng.height !== expectedPng.height) {
-				console.log(`Image dimensions differ. Resizing actual to match expected...`);
-				console.log(`  Actual: ${actualPng.width}x${actualPng.height}`);
-				console.log(`  Expected: ${expectedPng.width}x${expectedPng.height}`);
+				console.error(`Image dimensions differ. Resizing actual to match expected...`);
+				console.error(`  Actual: ${actualPng.width}x${actualPng.height}`);
+				console.error(`  Expected: ${expectedPng.width}x${expectedPng.height}`);
 
 				// Resize actual image to match expected dimensions
 				const resized = await sharp(actual)
@@ -143,7 +143,7 @@ export class VisualTester {
 			// Save screenshot as PNG
 			fs.writeFileSync(filepath, screenshot);
 
-			console.log(`Baseline saved: ${filepath}`);
+			console.error(`Baseline saved: ${filepath}`);
 			return filepath;
 
 		} catch (error: any) {
@@ -215,7 +215,7 @@ export class VisualTester {
 
 		if (fs.existsSync(filepath)) {
 			fs.unlinkSync(filepath);
-			console.log(`Baseline deleted: ${filepath}`);
+			console.error(`Baseline deleted: ${filepath}`);
 		}
 	}
 
@@ -231,7 +231,7 @@ export class VisualTester {
 		const filepath = path.join(this.baselinesDir, filename);
 
 		fs.writeFileSync(filepath, diffImage);
-		console.log(`Diff image saved: ${filepath}`);
+		console.error(`Diff image saved: ${filepath}`);
 
 		return filepath;
 	}

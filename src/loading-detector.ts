@@ -67,7 +67,7 @@ export class LoadingDetector {
 			similarityThreshold = 0.95
 		} = options || {};
 
-		console.log(`[Loading Detector] Starting detection (timeout: ${timeout}ms, interval: ${pollInterval}ms, stability: ${stabilityTime}ms)`);
+		console.error(`[Loading Detector] Starting detection (timeout: ${timeout}ms, interval: ${pollInterval}ms, stability: ${stabilityTime}ms)`);
 
 		const startTime = Date.now();
 		let lastScreenshot: Buffer | null = null;
@@ -83,14 +83,14 @@ export class LoadingDetector {
 				// Compare with previous screenshot
 				const similarity = await this.compareScreenshots(lastScreenshot, currentScreenshot);
 
-				console.log(`[Loading Detector] Screenshot ${screenshotCount} similarity: ${(similarity * 100).toFixed(2)}%`);
+				console.error(`[Loading Detector] Screenshot ${screenshotCount} similarity: ${(similarity * 100).toFixed(2)}%`);
 
 				if (similarity >= similarityThreshold) {
 					// Screen is stable (similar to previous)
 					if (!stableStart) {
 						// Start stability timer
 						stableStart = Date.now();
-						console.log(`[Loading Detector] Screen stable, starting stability timer...`);
+						console.error(`[Loading Detector] Screen stable, starting stability timer...`);
 					} else {
 						// Check if stable for required time
 						const stableDuration = Date.now() - stableStart;
@@ -98,7 +98,7 @@ export class LoadingDetector {
 						if (stableDuration >= stabilityTime) {
 							// Loading complete!
 							const totalDuration = Date.now() - startTime;
-							console.log(`[Loading Detector] ✅ Loading complete after ${totalDuration}ms (${screenshotCount} screenshots)`);
+							console.error(`[Loading Detector] ✅ Loading complete after ${totalDuration}ms (${screenshotCount} screenshots)`);
 
 							return {
 								completed: true,
@@ -107,13 +107,13 @@ export class LoadingDetector {
 								screenshotCount
 							};
 						} else {
-							console.log(`[Loading Detector] Still stable (${stableDuration}/${stabilityTime}ms)`);
+							console.error(`[Loading Detector] Still stable (${stableDuration}/${stabilityTime}ms)`);
 						}
 					}
 				} else {
 					// Screen changed, reset stability timer
 					if (stableStart) {
-						console.log(`[Loading Detector] Screen changed, resetting stability timer`);
+						console.error(`[Loading Detector] Screen changed, resetting stability timer`);
 					}
 					stableStart = null;
 				}
@@ -128,7 +128,7 @@ export class LoadingDetector {
 
 		// Timeout reached
 		const totalDuration = Date.now() - startTime;
-		console.log(`[Loading Detector] ⏱️ Timeout reached after ${totalDuration}ms (${screenshotCount} screenshots)`);
+		console.error(`[Loading Detector] ⏱️ Timeout reached after ${totalDuration}ms (${screenshotCount} screenshots)`);
 
 		return {
 			completed: false,
@@ -222,7 +222,7 @@ export class LoadingDetector {
 		waitForDisappear: boolean = true,
 		timeout: number = 10000
 	): Promise<LoadingDetectionResult> {
-		console.log(`[Loading Detector] Waiting for element "${elementText}" to ${waitForDisappear ? "disappear" : "appear"}`);
+		console.error(`[Loading Detector] Waiting for element "${elementText}" to ${waitForDisappear ? "disappear" : "appear"}`);
 
 		const startTime = Date.now();
 		const pollInterval = 500;
@@ -244,7 +244,7 @@ export class LoadingDetector {
 
 			if (conditionMet) {
 				const duration = Date.now() - startTime;
-				console.log(`[Loading Detector] ✅ Element condition met after ${duration}ms`);
+				console.error(`[Loading Detector] ✅ Element condition met after ${duration}ms`);
 
 				return {
 					completed: true,
@@ -260,7 +260,7 @@ export class LoadingDetector {
 
 		// Timeout
 		const duration = Date.now() - startTime;
-		console.log(`[Loading Detector] ⏱️ Timeout: element condition not met after ${duration}ms`);
+		console.error(`[Loading Detector] ⏱️ Timeout: element condition not met after ${duration}ms`);
 
 		return {
 			completed: false,

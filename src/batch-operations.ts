@@ -90,17 +90,17 @@ export class BatchOperations {
 		const startTime = Date.now();
 		let errorScreenshot: Buffer | undefined;
 
-		console.log(`[Batch Operations] Starting batch execution: ${actions.length} actions`);
-		console.log(`[Batch Operations] Options: stopOnError=${stopOnError}, takeScreenshot=${takeScreenshotOnError}, delay=${actionDelay}ms`);
+		console.error(`[Batch Operations] Starting batch execution: ${actions.length} actions`);
+		console.error(`[Batch Operations] Options: stopOnError=${stopOnError}, takeScreenshot=${takeScreenshotOnError}, delay=${actionDelay}ms`);
 
 		// Execute each action
 		for (let i = 0; i < actions.length; i++) {
 			const action = actions[i];
 			const actionStartTime = Date.now();
 
-			console.log(`[Batch Operations] Executing action ${i + 1}/${actions.length}: ${action.type}`);
+			console.error(`[Batch Operations] Executing action ${i + 1}/${actions.length}: ${action.type}`);
 			if (action.description) {
-				console.log(`[Batch Operations]   Description: ${action.description}`);
+				console.error(`[Batch Operations]   Description: ${action.description}`);
 			}
 
 			try {
@@ -115,7 +115,7 @@ export class BatchOperations {
 					duration
 				});
 
-				console.log(`[Batch Operations] ✅ Action ${i + 1} completed successfully (${duration}ms)`);
+				console.error(`[Batch Operations] ✅ Action ${i + 1} completed successfully (${duration}ms)`);
 
 				// Delay before next action (if specified)
 				if (actionDelay > 0 && i < actions.length - 1) {
@@ -138,7 +138,7 @@ export class BatchOperations {
 				// Take screenshot on error (if enabled and not already taken)
 				if (takeScreenshotOnError && !errorScreenshot) {
 					try {
-						console.log(`[Batch Operations] 📸 Taking error screenshot...`);
+						console.error(`[Batch Operations] 📸 Taking error screenshot...`);
 						errorScreenshot = await robot.getScreenshot();
 					} catch (screenshotError) {
 						console.error(`[Batch Operations] Failed to take error screenshot:`, screenshotError);
@@ -147,7 +147,7 @@ export class BatchOperations {
 
 				// Stop execution if stopOnError is true
 				if (stopOnError) {
-					console.log(`[Batch Operations] Stopping execution due to error (stopOnError=true)`);
+					console.error(`[Batch Operations] Stopping execution due to error (stopOnError=true)`);
 
 					// Mark remaining actions as skipped
 					for (let j = i + 1; j < actions.length; j++) {
@@ -168,7 +168,7 @@ export class BatchOperations {
 		const skippedCount = results.filter(r => r.status === "skipped").length;
 		const success = failedCount === 0;
 
-		console.log(`[Batch Operations] Batch execution completed: ${successCount} success, ${failedCount} failed, ${skippedCount} skipped (${totalDuration}ms)`);
+		console.error(`[Batch Operations] Batch execution completed: ${successCount} success, ${failedCount} failed, ${skippedCount} skipped (${totalDuration}ms)`);
 
 		return {
 			success,

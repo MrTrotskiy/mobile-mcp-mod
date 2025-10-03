@@ -49,7 +49,7 @@ export class DeviceConditions {
 				percent.toString()
 			]);
 
-			console.log(`Battery level set to ${percent}%`);
+			console.error(`Battery level set to ${percent}%`);
 		} catch (error: any) {
 			throw new Error(`Failed to set battery level: ${error.message}`);
 		}
@@ -71,7 +71,7 @@ export class DeviceConditions {
 				"reset"
 			]);
 
-			console.log("Battery simulation reset");
+			console.error("Battery simulation reset");
 		} catch (error: any) {
 			throw new Error(`Failed to reset battery: ${error.message}`);
 		}
@@ -115,7 +115,7 @@ export class DeviceConditions {
 				enable.toString()
 			]);
 
-			console.log(`Airplane mode ${enable ? "enabled" : "disabled"}`);
+			console.error(`Airplane mode ${enable ? "enabled" : "disabled"}`);
 		} catch (error: any) {
 			throw new Error(`Failed to set airplane mode: ${error.message}`);
 		}
@@ -140,7 +140,7 @@ export class DeviceConditions {
 				command
 			]);
 
-			console.log(`WiFi ${enable ? "enabled" : "disabled"}`);
+			console.error(`WiFi ${enable ? "enabled" : "disabled"}`);
 		} catch (error: any) {
 			throw new Error(`Failed to set WiFi: ${error.message}`);
 		}
@@ -165,7 +165,7 @@ export class DeviceConditions {
 				command
 			]);
 
-			console.log(`Mobile data ${enable ? "enabled" : "disabled"}`);
+			console.error(`Mobile data ${enable ? "enabled" : "disabled"}`);
 		} catch (error: any) {
 			throw new Error(`Failed to set mobile data: ${error.message}`);
 		}
@@ -240,7 +240,7 @@ export class DeviceConditions {
 				latitude.toString()
 			]);
 
-			console.log(`Geolocation set to ${latitude}, ${longitude}`);
+			console.error(`Geolocation set to ${latitude}, ${longitude}`);
 		} catch (error: any) {
 			// Fallback: try broadcast intent method
 			try {
@@ -257,7 +257,7 @@ export class DeviceConditions {
 					"true"
 				]);
 
-				console.log(`Geolocation enabled (coordinates not set - emulator only feature)`);
+				console.error(`Geolocation enabled (coordinates not set - emulator only feature)`);
 			} catch {
 				throw new Error(`Failed to set geolocation: ${error.message}. Note: This feature works only on emulators.`);
 			}

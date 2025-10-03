@@ -84,7 +84,7 @@ export class PerformanceMonitor {
 		this.deviceId = deviceId;
 		this.packageName = packageName;
 
-		console.log(`Starting performance monitoring for ${packageName} on ${deviceId}`);
+		console.error(`Starting performance monitoring for ${packageName} on ${deviceId}`);
 
 		// Collect metrics at intervals
 		this.intervalId = setInterval(async () => {
@@ -228,7 +228,7 @@ export class PerformanceMonitor {
 		}
 
 		this.monitoring = false;
-		console.log(`Stopped monitoring. Collected ${this.metrics.length} samples.`);
+		console.error(`Stopped monitoring. Collected ${this.metrics.length} samples.`);
 
 		const result = this.metrics;
 		this.metrics = [];

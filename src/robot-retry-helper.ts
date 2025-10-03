@@ -51,13 +51,13 @@ export class RobotRetryHelper {
 	): Promise<{ success: boolean; attempts: number; error?: string }> {
 		const { maxRetries = 2, retryDelay = 500, verifyAction } = options || {};
 
-		console.log(`[Robot Retry] Tapping at (${x}, ${y}) with up to ${maxRetries} retries`);
+		console.error(`[Robot Retry] Tapping at (${x}, ${y}) with up to ${maxRetries} retries`);
 
 		for (let attempt = 1; attempt <= maxRetries; attempt++) {
 			try {
 				// Attempt tap
 				await robot.tap(x, y);
-				console.log(`[Robot Retry] Tap attempt ${attempt}/${maxRetries} completed`);
+				console.error(`[Robot Retry] Tap attempt ${attempt}/${maxRetries} completed`);
 
 				// If no verification function, assume success
 				if (!verifyAction) {
@@ -71,10 +71,10 @@ export class RobotRetryHelper {
 				const verified = await verifyAction();
 
 				if (verified) {
-					console.log(`[Robot Retry] ✅ Tap verified successful after ${attempt} attempt(s)`);
+					console.error(`[Robot Retry] ✅ Tap verified successful after ${attempt} attempt(s)`);
 					return { success: true, attempts: attempt };
 				} else {
-					console.log(`[Robot Retry] ⚠️ Tap verification failed, attempt ${attempt}/${maxRetries}`);
+					console.error(`[Robot Retry] ⚠️ Tap verification failed, attempt ${attempt}/${maxRetries}`);
 
 					// If not last attempt, wait before retry
 					if (attempt < maxRetries) {
@@ -115,12 +115,12 @@ export class RobotRetryHelper {
 	): Promise<{ success: boolean; attempts: number }> {
 		const { maxRetries = 2, retryDelay = 500, verifyAction } = options || {};
 
-		console.log(`[Robot Retry] Swiping ${direction} with up to ${maxRetries} retries`);
+		console.error(`[Robot Retry] Swiping ${direction} with up to ${maxRetries} retries`);
 
 		for (let attempt = 1; attempt <= maxRetries; attempt++) {
 			try {
 				await robot.swipe(direction);
-				console.log(`[Robot Retry] Swipe attempt ${attempt}/${maxRetries} completed`);
+				console.error(`[Robot Retry] Swipe attempt ${attempt}/${maxRetries} completed`);
 
 				// If no verification, assume success
 				if (!verifyAction) {
@@ -133,10 +133,10 @@ export class RobotRetryHelper {
 				// Verify
 				const verified = await verifyAction();
 				if (verified) {
-					console.log(`[Robot Retry] ✅ Swipe verified after ${attempt} attempt(s)`);
+					console.error(`[Robot Retry] ✅ Swipe verified after ${attempt} attempt(s)`);
 					return { success: true, attempts: attempt };
 				} else {
-					console.log(`[Robot Retry] ⚠️ Swipe verification failed, attempt ${attempt}/${maxRetries}`);
+					console.error(`[Robot Retry] ⚠️ Swipe verification failed, attempt ${attempt}/${maxRetries}`);
 					if (attempt < maxRetries) {
 						await this.delay(retryDelay);
 					}
@@ -169,12 +169,12 @@ export class RobotRetryHelper {
 	): Promise<{ success: boolean; attempts: number }> {
 		const { maxRetries = 2, retryDelay = 500 } = options || {};
 
-		console.log(`[Robot Retry] Typing "${text}" with up to ${maxRetries} retries`);
+		console.error(`[Robot Retry] Typing "${text}" with up to ${maxRetries} retries`);
 
 		for (let attempt = 1; attempt <= maxRetries; attempt++) {
 			try {
 				await robot.sendKeys(text);
-				console.log(`[Robot Retry] ✅ Type attempt ${attempt} completed`);
+				console.error(`[Robot Retry] ✅ Type attempt ${attempt} completed`);
 				return { success: true, attempts: attempt };
 
 			} catch (error) {

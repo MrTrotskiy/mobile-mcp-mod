@@ -74,11 +74,11 @@ export class AIElementFinder {
 
 		// Step 2: Fallback to exact text search via accessibility API
 		// This catches obvious elements like "Signup", "Login", etc.
-		console.log(`[AI Element Finder] Fuzzy match failed, trying accessibility text search for: "${description}"`);
+		console.error(`[AI Element Finder] Fuzzy match failed, trying accessibility text search for: "${description}"`);
 
 		const textMatch = this.findByExactText(elements, desc);
 		if (textMatch) {
-			console.log(`[AI Element Finder] ✅ Found via accessibility text search`);
+			console.error(`[AI Element Finder] ✅ Found via accessibility text search`);
 			return textMatch;
 		}
 
@@ -527,7 +527,7 @@ export class AIElementFinder {
 		const centerX = Math.round(x + width / 2);
 		const centerY = Math.round(y + height / 2);
 
-		console.log(`[AI Element Finder] Tap coordinates: (${centerX}, ${centerY}) for ${width}x${height}px element`);
+		console.error(`[AI Element Finder] Tap coordinates: (${centerX}, ${centerY}) for ${width}x${height}px element`);
 
 		return { x: centerX, y: centerY };
 	}
@@ -559,11 +559,11 @@ export class AIElementFinder {
 	): Promise<{ element: ScreenElement; confidence: number; reason: string; method: "accessibility" | "ocr" } | null> {
 
 		// Step 1: Try accessibility-based detection first (fast)
-		console.log(`[AI Element Finder] Trying accessibility-based detection for: "${description}"`);
+		console.error(`[AI Element Finder] Trying accessibility-based detection for: "${description}"`);
 		const textMatch = this.findElementByDescription(elements, description, threshold);
 
 		if (textMatch && textMatch.score >= threshold) {
-			console.log(`[AI Element Finder] ✅ Found via accessibility (score: ${textMatch.score})`);
+			console.error(`[AI Element Finder] ✅ Found via accessibility (score: ${textMatch.score})`);
 			return {
 				element: textMatch.element,
 				confidence: textMatch.score,
@@ -573,7 +573,7 @@ export class AIElementFinder {
 		}
 
 		// Step 2: Fallback to OCR if accessibility failed
-		console.log(`[AI Element Finder] Accessibility failed, trying OCR...`);
+		console.error(`[AI Element Finder] Accessibility failed, trying OCR...`);
 
 		try {
 			const ocrEngine = getOCREngine();
@@ -589,12 +589,12 @@ export class AIElementFinder {
 			const matches = ocrEngine.findTextByDescription(ocrResult, description);
 
 			if (matches.length === 0) {
-				console.log(`[AI Element Finder] ❌ No matches found in OCR results`);
+				console.error(`[AI Element Finder] ❌ No matches found in OCR results`);
 				return null;
 			}
 
 			const bestMatch = matches[0];
-			console.log(`[AI Element Finder] ✅ Found via OCR: "${bestMatch.text}" (confidence: ${Math.round(bestMatch.confidence)})`);
+			console.error(`[AI Element Finder] ✅ Found via OCR: "${bestMatch.text}" (confidence: ${Math.round(bestMatch.confidence)})`);
 
 			// Create synthetic ScreenElement from OCR result
 			// Note: OCR gives us text + coordinates, but no type/label info

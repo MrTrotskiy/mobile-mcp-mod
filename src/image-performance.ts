@@ -28,7 +28,7 @@ import sharp from "sharp";
  * - Parallel operations: 4x throughput
  */
 export function configureSharpPerformance(): void {
-	console.log("[Image Performance] Configuring Sharp...");
+	console.error("[Image Performance] Configuring Sharp...");
 
 	// Configure cache size and limits
 	// Larger cache = more repeated operations benefit from caching
@@ -47,7 +47,7 @@ export function configureSharpPerformance(): void {
 
 	// Get and log cache statistics
 	const stats = sharp.cache();
-	console.log("[Image Performance] Sharp configured:", {
+	console.error("[Image Performance] Sharp configured:", {
 		memory: `${stats.memory}MB`,
 		files: stats.files,
 		items: stats.items,
@@ -62,7 +62,7 @@ export function configureSharpPerformance(): void {
  */
 export function disableSharpCache(): void {
 	sharp.cache(false);
-	console.log("[Image Performance] Sharp cache disabled");
+	console.error("[Image Performance] Sharp cache disabled");
 }
 
 /**
@@ -88,5 +88,5 @@ export function resetSharpCache(): void {
 		files: 30,
 		items: 200
 	});
-	console.log("[Image Performance] Sharp cache reset");
+	console.error("[Image Performance] Sharp cache reset");
 }

@@ -126,7 +126,7 @@ export class VideoRecorder {
 		// Output file on device
 		args.push("/sdcard/mobilepixel-recording.mp4");
 
-		console.log(`Starting Android recording: adb ${args.join(" ")}`);
+		console.error(`Starting Android recording: adb ${args.join(" ")}`);
 
 		// Start recording process
 		this.recordingProcess = execFile("adb", args, error => {
@@ -153,7 +153,7 @@ export class VideoRecorder {
 		// Output file path
 		args.push(this.outputPath);
 
-		console.log(`Starting iOS recording: xcrun ${args.join(" ")}`);
+		console.error(`Starting iOS recording: xcrun ${args.join(" ")}`);
 
 		// Start recording process
 		this.recordingProcess = execFile("xcrun", args, error => {
@@ -181,7 +181,7 @@ export class VideoRecorder {
 			throw new Error("Recording process not found");
 		}
 
-		console.log("Stopping recording...");
+		console.error("Stopping recording...");
 
 		// Send interrupt signal to stop recording
 		this.recordingProcess.kill("SIGINT");
@@ -229,7 +229,7 @@ export class VideoRecorder {
    * Pull recording from Android device
    */
 	private async pullAndroidRecording(deviceId: string): Promise<void> {
-		console.log("Pulling recording from Android device...");
+		console.error("Pulling recording from Android device...");
 
 		// Wait a bit for file to be finalized
 		await new Promise(resolve => setTimeout(resolve, 1000));
@@ -244,7 +244,7 @@ export class VideoRecorder {
 				this.outputPath
 			]);
 
-			console.log(`Recording pulled to: ${this.outputPath}`);
+			console.error(`Recording pulled to: ${this.outputPath}`);
 
 			// Delete file from device
 			await execFileAsync("adb", [
@@ -255,7 +255,7 @@ export class VideoRecorder {
 				"/sdcard/mobilepixel-recording.mp4"
 			]);
 
-			console.log("Recording deleted from device");
+			console.error("Recording deleted from device");
 		} catch (error: any) {
 			throw new Error(`Failed to pull recording from device: ${error.message}`);
 		}
@@ -299,6 +299,6 @@ export class VideoRecorder {
 		this.platform = null;
 		this.deviceId = "";
 
-		console.log("Recording cancelled");
+		console.error("Recording cancelled");
 	}
 }

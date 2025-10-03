@@ -1448,7 +1448,7 @@ export const createMcpServer = (): McpServer => {
 			const robot = getRobotFromDevice(device);
 
 			// Execute batch
-			console.log(`[Batch] Executing batch of ${actions.length} actions on device ${device}`);
+			console.error(`[Batch] Executing batch of ${actions.length} actions on device ${device}`);
 			const result = await BatchOperations.executeBatch(robot, actions as BatchAction[], {
 				stopOnError: stopOnError !== false,  // Default to true
 				takeScreenshotOnError: takeScreenshotOnError !== false,  // Default to true
@@ -1525,7 +1525,7 @@ export const createMcpServer = (): McpServer => {
 		async ({ device, timeout, pollInterval, stabilityTime, similarityThreshold }) => {
 			const robot = getRobotFromDevice(device);
 
-			console.log(`[Loading] Waiting for loading to complete on device ${device}`);
+			console.error(`[Loading] Waiting for loading to complete on device ${device}`);
 			const result = await LoadingDetector.waitForLoading(robot, {
 				timeout: timeout || 10000,
 				pollInterval: pollInterval || 500,
@@ -1573,7 +1573,7 @@ export const createMcpServer = (): McpServer => {
 			const robot = getRobotFromDevice(device);
 
 			const shouldDisappear = waitForDisappear !== false; // Default to true
-			console.log(`[Loading] Waiting for element "${elementText}" to ${shouldDisappear ? "disappear" : "appear"}`);
+			console.error(`[Loading] Waiting for element "${elementText}" to ${shouldDisappear ? "disappear" : "appear"}`);
 
 			const result = await LoadingDetector.waitForElement(
 				robot,
