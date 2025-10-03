@@ -562,3 +562,4 @@ If you have questions or need help:
 **Last Updated:** October 2025  
 **MobilePixel MCP Version:** 1.0.0+
 
+
