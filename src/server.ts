@@ -33,6 +33,47 @@ import { CICDReporter, TestResult } from "./ci-cd-reporter";
 import { BatchOperations, BatchAction } from "./batch-operations";
 import { LoadingDetector } from "./loading-detector";
 import { configureSharpPerformance } from "./image-performance";
+import path from "node:path";
+
+// Load MCP configuration
+interface McpConfig {
+	tools: Record<string, boolean>;
+}
+
+const loadMcpConfig = (): McpConfig => {
+	try {
+		const configPath = path.join(process.cwd(), "mcp-config.json");
+		if (fs.existsSync(configPath)) {
+			const configData = fs.readFileSync(configPath, "utf-8");
+			return JSON.parse(configData);
+		}
+	} catch (error: any) {
+		console.error("[MCP Config] Failed to load config, using defaults:", error.message);
+	}
+	
+	// Default: all enabled
+	return {
+		tools: {
+			core: true,
+			ai: true,
+			testing: true,
+			assertions: true,
+			visual_testing: true,
+			accessibility: true,
+			bug_reports: true,
+			test_recording: true,
+			batch_operations: true,
+			loading_detection: true,
+			clipboard: true,
+			device_conditions: true,
+			video_recording: true,
+			performance_monitoring: true,
+			network_monitoring: true,
+			flakiness_detection: true,
+			test_data_generation: true
+		}
+	};
+};
 
 export const getAgentVersion = (): string => {
 	const json = require("../package.json");
@@ -63,6 +104,10 @@ export const createMcpServer = (): McpServer => {
 	// Must be called before any image operations
 	// Provides 20-30% performance boost for cached operations
 	configureSharpPerformance();
+
+	// Load MCP configuration
+	const config = loadMcpConfig();
+	console.error("[MCP Config] Loaded configuration:", JSON.stringify(config.tools, null, 2));
 
 	const server = new McpServer({
 		name: "mobilepixel",
@@ -103,6 +148,13 @@ export const createMcpServer = (): McpServer => {
 		};
 
 		server.tool(name, description, paramsSchema, args => wrappedCb(args));
+	};
+
+	// Helper to conditionally register tools based on config
+	const toolIf = (category: string, name: string, description: string, paramsSchema: ZodRawShape, cb: (args: z.objectOutputType<ZodRawShape, ZodTypeAny>) => Promise<string>) => {
+		if (config.tools[category] !== false) {
+			tool(name, description, paramsSchema, cb);
+		}
 	};
 
 	const posthog = async (event: string, properties: Record<string, string>) => {
@@ -682,7 +734,8 @@ export const createMcpServer = (): McpServer => {
 	// MCP Tools for network monitoring
 	// Note: Requires proxy setup on device (mitmproxy, Charles, etc.)
 
-	tool(
+	toolIf(
+		"network_monitoring",
 		"mobile_set_proxy",
 		"Set HTTP proxy on device for network monitoring. Configure device to route traffic through a proxy server (e.g., mitmproxy, Charles). After setting proxy, restart the app.",
 		{
@@ -702,7 +755,8 @@ export const createMcpServer = (): McpServer => {
 		}
 	);
 
-	tool(
+	toolIf(
+		"network_monitoring",
 		"mobile_clear_proxy",
 		"Clear HTTP proxy settings on device. Restore direct network connection. Restart the app after clearing proxy.",
 		{
@@ -720,7 +774,8 @@ export const createMcpServer = (): McpServer => {
 		}
 	);
 
-	tool(
+	toolIf(
+		"network_monitoring",
 		"mobile_get_proxy",
 		"Get current HTTP proxy settings on device.",
 		{
@@ -738,7 +793,8 @@ export const createMcpServer = (): McpServer => {
 		}
 	);
 
-	tool(
+	toolIf(
+		"network_monitoring",
 		"mobile_network_start_monitoring",
 		"Start capturing network requests. Note: Requires proxy to be set up and running (use mobile_set_proxy first).",
 		{
@@ -750,7 +806,8 @@ export const createMcpServer = (): McpServer => {
 		}
 	);
 
-	tool(
+	toolIf(
+		"network_monitoring",
 		"mobile_network_stop_monitoring",
 		"Stop capturing network requests.",
 		{
@@ -763,7 +820,8 @@ export const createMcpServer = (): McpServer => {
 		}
 	);
 
-	tool(
+	toolIf(
+		"network_monitoring",
 		"mobile_network_get_requests",
 		"Get captured network requests. Returns list of HTTP/HTTPS requests with details.",
 		{
@@ -789,7 +847,8 @@ export const createMcpServer = (): McpServer => {
 		}
 	);
 
-	tool(
+	toolIf(
+		"network_monitoring",
 		"mobile_network_get_request_details",
 		"Get detailed information about a specific network request, including headers and body.",
 		{
@@ -845,7 +904,8 @@ export const createMcpServer = (): McpServer => {
 		}
 	);
 
-	tool(
+	toolIf(
+		"network_monitoring",
 		"mobile_network_get_summary",
 		"Get summary statistics of captured network requests.",
 		{
@@ -884,7 +944,8 @@ export const createMcpServer = (): McpServer => {
 		}
 	);
 
-	tool(
+	toolIf(
+		"network_monitoring",
 		"mobile_network_clear",
 		"Clear all captured network requests from memory.",
 		{
@@ -1894,7 +1955,8 @@ export const createMcpServer = (): McpServer => {
 	// VIDEO RECORDING
 	// ===========================
 
-	tool(
+	toolIf(
+		"video_recording",
 		"mobile_start_video_recording",
 		"Start recording video of device screen. Records until stopped (max 3 minutes). Video saved to test/recordings/.",
 		{
@@ -1921,7 +1983,8 @@ export const createMcpServer = (): McpServer => {
 		}
 	);
 
-	tool(
+	toolIf(
+		"video_recording",
 		"mobile_stop_video_recording",
 		"Stop video recording and save to file. Returns file path and size.",
 		{
@@ -1940,7 +2003,8 @@ export const createMcpServer = (): McpServer => {
 		}
 	);
 
-	tool(
+	toolIf(
+		"video_recording",
 		"mobile_get_recording_status_video",
 		"Check if video recording is in progress and get recording details.",
 		{
@@ -1957,7 +2021,8 @@ export const createMcpServer = (): McpServer => {
 		}
 	);
 
-	tool(
+	toolIf(
+		"video_recording",
 		"mobile_cancel_video_recording",
 		"Cancel current video recording without saving. Useful if you want to discard the recording.",
 		{
@@ -2028,7 +2093,8 @@ export const createMcpServer = (): McpServer => {
 	// PERFORMANCE MONITORING
 	// ===========================
 
-	tool(
+	toolIf(
+		"performance_monitoring",
 		"mobile_start_performance_monitoring",
 		"Start monitoring app performance metrics (CPU, memory). Collects samples every second until stopped.",
 		{
@@ -2050,7 +2116,8 @@ export const createMcpServer = (): McpServer => {
 		}
 	);
 
-	tool(
+	toolIf(
+		"performance_monitoring",
 		"mobile_stop_performance_monitoring",
 		"Stop performance monitoring and get collected metrics. Returns average, peak, and all samples.",
 		{
@@ -2083,7 +2150,8 @@ export const createMcpServer = (): McpServer => {
 		}
 	);
 
-	tool(
+	toolIf(
+		"performance_monitoring",
 		"mobile_get_performance_status",
 		"Check if performance monitoring is active and get current stats.",
 		{
@@ -2586,7 +2654,8 @@ ${report.score < 90 ? "Run mobile_check_accessibility for detailed issue list." 
 
 	// ==================== Week 7: Test Flakiness Detection ====================
 
-	tool(
+	toolIf(
+		"flakiness_detection",
 		"mobile_record_test_result",
 		"Record test execution result for flakiness tracking. Call this after each test run to build history.",
 		{
@@ -2627,7 +2696,8 @@ ${report.score < 90 ? "Run mobile_check_accessibility for detailed issue list." 
 		}
 	);
 
-	tool(
+	toolIf(
+		"flakiness_detection",
 		"mobile_get_test_statistics",
 		"Get detailed statistics for a specific test including pass rate, flakiness score, and history.",
 		{
@@ -2687,7 +2757,8 @@ ${report.score < 90 ? "Run mobile_check_accessibility for detailed issue list." 
 		}
 	);
 
-	tool(
+	toolIf(
+		"flakiness_detection",
 		"mobile_get_flaky_tests",
 		"Get list of all flaky tests with recommendations for fixing them.",
 		{
@@ -2721,7 +2792,8 @@ ${report.score < 90 ? "Run mobile_check_accessibility for detailed issue list." 
 		}
 	);
 
-	tool(
+	toolIf(
+		"flakiness_detection",
 		"mobile_get_test_summary",
 		"Get summary of all test execution history including flakiness statistics.",
 		{},
@@ -2756,7 +2828,8 @@ ${report.score < 90 ? "Run mobile_check_accessibility for detailed issue list." 
 		}
 	);
 
-	tool(
+	toolIf(
+		"flakiness_detection",
 		"mobile_clear_test_history",
 		"Clear test execution history. Use to reset tracking or remove old data.",
 		{
@@ -2775,7 +2848,8 @@ ${report.score < 90 ? "Run mobile_check_accessibility for detailed issue list." 
 
 	// ==================== Week 7: Test Data Generator ====================
 
-	tool(
+	toolIf(
+		"test_data_generation",
 		"mobile_generate_person",
 		"Generate random person data (name, email, phone, date of birth). Useful for registration and profile tests.",
 		{
@@ -2803,7 +2877,8 @@ ${report.score < 90 ? "Run mobile_check_accessibility for detailed issue list." 
 		}
 	);
 
-	tool(
+	toolIf(
+		"test_data_generation",
 		"mobile_generate_email",
 		"Generate random email address.",
 		{
@@ -2816,7 +2891,8 @@ ${report.score < 90 ? "Run mobile_check_accessibility for detailed issue list." 
 		}
 	);
 
-	tool(
+	toolIf(
+		"test_data_generation",
 		"mobile_generate_phone",
 		"Generate random phone number based on locale.",
 		{
@@ -2832,7 +2908,8 @@ ${report.score < 90 ? "Run mobile_check_accessibility for detailed issue list." 
 		}
 	);
 
-	tool(
+	toolIf(
+		"test_data_generation",
 		"mobile_generate_address",
 		"Generate random address (street, city, zip code, country).",
 		{},
@@ -2853,7 +2930,8 @@ ${report.score < 90 ? "Run mobile_check_accessibility for detailed issue list." 
 		}
 	);
 
-	tool(
+	toolIf(
+		"test_data_generation",
 		"mobile_generate_credit_card",
 		"Generate test credit card data. WARNING: This is TEST DATA ONLY, not real credit cards.",
 		{
@@ -2874,7 +2952,8 @@ ${report.score < 90 ? "Run mobile_check_accessibility for detailed issue list." 
 		}
 	);
 
-	tool(
+	toolIf(
+		"test_data_generation",
 		"mobile_generate_password",
 		"Generate secure random password.",
 		{
@@ -2890,7 +2969,8 @@ ${report.score < 90 ? "Run mobile_check_accessibility for detailed issue list." 
 		}
 	);
 
-	tool(
+	toolIf(
+		"test_data_generation",
 		"mobile_generate_date",
 		"Generate random date. Useful for date picker testing.",
 		{
@@ -2917,7 +2997,8 @@ ${report.score < 90 ? "Run mobile_check_accessibility for detailed issue list." 
 		}
 	);
 
-	tool(
+	toolIf(
+		"test_data_generation",
 		"mobile_generate_text",
 		"Generate random lorem ipsum text. Useful for text input testing.",
 		{
@@ -2929,7 +3010,8 @@ ${report.score < 90 ? "Run mobile_check_accessibility for detailed issue list." 
 		}
 	);
 
-	tool(
+	toolIf(
+		"test_data_generation",
 		"mobile_generate_batch_data",
 		"Generate multiple test data items at once. Useful for bulk testing.",
 		{
