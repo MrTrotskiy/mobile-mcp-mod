@@ -1,8 +1,8 @@
 {
   "name": "@mobilepixel/mcp",
   "mcpName": "io.github.mobilepixel/mcp",
-  "version": "1.0.0",
-  "description": "MobilePixel - Pixel-perfect mobile automation with 89+ AI-powered tools for iOS & Android testing",
+  "version": "1.1.0",
+  "description": "MobilePixel - Pixel-perfect mobile automation with 94+ AI-powered tools for iOS & Android testing",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/MrTrotskiy/mobilepixel.git"
@@ -14,6 +14,7 @@
   "scripts": {
     "start": "node lib/index.js",
     "build": "tsc && chmod +x lib/index.js",
+    "dev": "npm run build && npm start",
     "lint": "eslint .",
     "fixlint": "eslint . --fix",
     "test": "nyc mocha --require ts-node/register test/*.ts",
